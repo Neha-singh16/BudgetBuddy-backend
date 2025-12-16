@@ -2,11 +2,13 @@
   "name": "budgetbuddy-backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/app.js",
-    "dev": "nodemon src/app.js"
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "vercel-build": "echo \"no build required for backend\""
+
   },
   "keywords": [],
   "author": "",
@@ -14,9 +16,13 @@
   "type": "commonjs",
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.13.2",
+    "multer": "^2.0.1",
     "validator": "^13.15.0"
   }
 }
