@@ -237,18 +237,18 @@ app.use((err, req, res, next) => {
   });
 });
 
-// bootstrapping
+// Detect Vercel serverless to avoid binding a port there
+const isServerless = !!process.env.VERCEL;
+
+// Bootstrapping for local/standalone usage only
 async function startServer() {
-  // 1) Connect to Mongo
   await connectDB();
   console.log("✅ MongoDB connected successfully");
 
-  // 2) If we’re _not_ in production, seed defaults
   if (process.env.NODE_ENV !== "production") {
     await seedDefaultCategories().catch((e) => console.error("Seed error:", e));
   }
 
-  // 3) Always start listening
   const port = process.env.PORT || 3000;
   app.listen(port, () => {
     console.log(
@@ -258,6 +258,16 @@ async function startServer() {
     );
     console.log(`📍 Server URL: http://localhost:${port}`);
     console.log(`🌐 CORS enabled for: ${process.env.CORS_ORIGIN || "http://localhost:5173"}`);
+  });
+}
+
+// Ensure we connect (without listening) when running on Vercel
+if (isServerless) {
+  connectDB().catch((err) => console.error("❌ Failed to connect DB on Vercel:", err));
+} else if (require.main === module) {
+  startServer().catch((err) => {
+    console.error("❌ Failed to start server:", err);
+    process.exit(1);
   });
 }
 
@@ -273,12 +283,6 @@ process.on("uncaughtException", (err) => {
 process.on("unhandledRejection", (err) => {
   console.error("💥 UNHANDLED REJECTION! Shutting down...");
   console.error(err);
-  process.exit(1);
-});
-
-// kick it off
-startServer().catch((err) => {
-  console.error("❌ Failed to start server:", err);
   process.exit(1);
 });
 
