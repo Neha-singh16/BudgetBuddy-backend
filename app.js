@@ -135,8 +135,29 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 
+// Ensure DB is connected before handling any route (first request safety)
+async function ensureDbConnection(req, res, next) {
+  try {
+    if (mongoose.connection.readyState !== 1) {
+      await connectDB();
+    }
+    return next();
+  } catch (e) {
+    return next(e);
+  }
+}
+app.use(ensureDbConnection);
+
 // health check
 app.get("/", (req, res) => res.send("🟢 Backend is live!"));
+app.get("/healthz", async (req, res) => {
+  try {
+    const state = mongoose.connection.readyState; // 0=disconnected,1=connected,2=connecting,3=disconnecting
+    res.json({ ok: state === 1, readyState: state });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e?.message || String(e) });
+  }
+});
 
 
 const defaultCategories = [
