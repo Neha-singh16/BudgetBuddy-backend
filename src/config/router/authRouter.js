@@ -138,11 +138,12 @@ authRouter.post("/signup", async (req, res) => {
     // Issue JWT
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
 
-    // Set HTTP‑only cookie
+    // Set HTTP‑only cookie; use SameSite=None for cross-site frontend/backend on different domains
+    const prod = process.env.NODE_ENV === "production";
     res.cookie("token", token, {
       httpOnly: true,
-      sameSite: "lax",
-      secure:  process.env.NODE_ENV === "production",
+      sameSite: prod ? "none" : "lax",
+      secure:  prod,
       maxAge:  24 * 60 * 60 * 1000,
       path:    "/",
     });
@@ -178,10 +179,11 @@ authRouter.post("/login", async (req, res) => {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
 
     // Set cookie
+    const prod = process.env.NODE_ENV === "production";
     res.cookie("token", token, {
       httpOnly: true,
-      sameSite: "lax",
-      secure:  process.env.NODE_ENV === "production",
+      sameSite: prod ? "none" : "lax",
+      secure:  prod,
       maxAge:  24 * 60 * 60 * 1000,
       path:    "/",
     });
@@ -208,10 +210,11 @@ authRouter.post("/logout", userAuth, (req, res) => {
       return res.status(403).send({ error: "Logout is disabled for this account" });
     }
 
+    const prod = process.env.NODE_ENV === "production";
     res.clearCookie("token", {
       httpOnly: true,
-      sameSite: "lax",
-      secure:  process.env.NODE_ENV === "production",
+      sameSite: prod ? "none" : "lax",
+      secure:  prod,
       path:    "/",
     });
     return res.status(200).send({ message: "logout successfully" });
