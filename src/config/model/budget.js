@@ -35,6 +35,19 @@ const budgetSchema = mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  resetPreference: {
+    type: String,
+    enum: ["manual", "automatic"],
+    default: "manual",
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  lastResetDate: {
+    type: Date,
+    default: Date.now,
+  },
 });
 budgetSchema.pre("remove", async function (next) {
   const Expense  = mongoose.model("Expense");
