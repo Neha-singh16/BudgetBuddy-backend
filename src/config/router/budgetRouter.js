@@ -120,14 +120,15 @@ budgetRouter.delete("/user/budget/:id", userAuth, async (req, res) => {
 budgetRouter.get("/user/balance", userAuth, async (req, res) => {
   try {
     const userId = req.user._id;
-    
+
+    // Use the ObjectId directly to avoid invalid conversions causing 500s
     const totalIncome = await Income.aggregate([
-      { $match: { userId: mongoose.Types.ObjectId(userId) } },
+      { $match: { userId: userId } },
       { $group: { _id: null, total: { $sum: "$amount" } } },
     ]);
 
     const totalExpenses = await Expense.aggregate([
-      { $match: { userId: mongoose.Types.ObjectId(userId) } },
+      { $match: { userId: userId } },
       { $group: { _id: null, total: { $sum: "$amount" } } },
     ]);
 
