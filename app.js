@@ -104,10 +104,21 @@ const corsOptions = {
       "http://localhost:5173",
       "http://localhost:5174",
       "http://localhost:5175",
-      "http://localhost:3000"
+      "http://localhost:3000",
+      // Deployed frontends (add more if needed)
+      "https://budget-buddy-frontend-two.vercel.app",
+      "https://budgetbuddy-frontend-two.vercel.app",
     ];
-    // Allow requests with no origin (like mobile apps, curl, Postman)
-    if (!origin || allowedOrigins.includes(origin)) {
+
+    const allowVercelWildcard = (() => {
+      try {
+        if (!origin) return false;
+        const { hostname, protocol } = new URL(origin);
+        return protocol === "https:" && hostname.endsWith("vercel.app");
+      } catch { return false; }
+    })();
+
+    if (!origin || allowedOrigins.includes(origin) || allowVercelWildcard) {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));
@@ -115,7 +126,7 @@ const corsOptions = {
   },
   credentials: true,
   methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
+  allowedHeaders: ["Content-Type", "Authorization", "Cookie", "Origin", "Accept", "X-Requested-With"],
   exposedHeaders: ["Set-Cookie"],
   optionsSuccessStatus: 200,
   preflightContinue: false,
